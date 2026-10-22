@@ -1,0 +1,85 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Maui — Island World and UFO Tour</title>
+<script defer src="https://cdn.jsdelivr.net/npm/x_ite@16.5.0/dist/x_ite.min.js"></script>
+<style>body{margin:0;background:#101b29;color:#edf5ff;font:15px system-ui}header,section,footer{padding:12px 20px}h1{font-size:22px;margin:0 0 5px}.muted{color:#c2d2e5}.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#21354a;padding:12px 20px}button,select{font:inherit;padding:9px 12px;border-radius:7px;border:1px solid #809db5;background:#eaf3fa;color:#102237;cursor:pointer}button:hover{background:white}x3d-canvas{display:block;width:100%;height:68vh;min-height:390px;background:#263d56}#status{padding:9px 20px;background:#23364a}pre{font-size:12px;max-height:150px;overflow:auto;white-space:pre-wrap}code{font-size:13px}a{color:#9ad6ff}</style></head><body>
+<header><h1>Maui — X_ITE 3D World Explorer</h1><div class="muted">Three-minute UFO ride · close camera and hum · photographic observatory arrival</div></header>
+<div class="controls"><label for="view">Camera</label><select id="view"><option value="OBSERVATORY_PHOTO_TEST">Observatory photo test</option><option value="MAUI_OVERVIEW">Maui overview</option><option value="MAUI_TOP">Top-down</option><option value="MAUI_WEST">West approach</option><option value="MAUI_EAST">East approach</option><option value="MAUI_SOUTH">South approach</option><option value="Birdseye">Birdseye</option><option value="North_Shore">North_Shore</option><option value="Kaanapali">Kaanapali</option><option value="Malaea">Malaea</option><option value="Makawao">Makawao</option><option value="High_Altitude">High_Altitude</option><option value="Observatory">Observatory</option><option value="Haiku">Haiku</option><option value="Hosmers">Hosmers Grove cameras</option><option value="camera">Kanio</option><option value="Waihee">Waihee</option><option value="Kahului">Maui Chamber of Commerce</option><option value="Waikamoi">Nature Conservancy</option><option value="VP1">Upcountry</option><option value="MRTP">Kihei</option><option value="KiheiVRML">Kihei World</option><option value="Grand_Tour_28">UFO</option></select><button id="photo">Photo view</button><button id="original">Original Observatory</button><button id="photoreset">Reset photo view</button><button id="go">Go to view</button><button id="reset">Reset overview</button><button id="menu">Show navigation menu</button><button id="tour">Follow UFO tour</button></div>
+<div id="flight" role="status">Waiting for the scene…</div><div id="status" role="status">Loading model…</div><x3d-canvas id="scene" tabindex="0" src="maui.x3d?v=arrival-2" contextMenu="true" contentScale="auto" update="auto"></x3d-canvas>
+<section><strong>Tour arrival:</strong> Touch the UFO from High Altitude to ride. At the end, the real UFO remains in the foreground with its hum, and the photo relief appears beyond it. Leaving the riding camera restores the normal landscape. This final composition has approximate depth and is intended for its fixed riding viewpoint.</section>
+<section><strong>Photo test:</strong> A still frame from your video is projected onto shallow, hand-shaped building and ground relief. Depth is approximate; hidden sides are not reconstructed. Use small Examine drags to inspect depth; large movements stretch the photograph. Reset photo view restores the original alignment. Original Observatory returns to the saved 3D scene.</section>
+<section><strong>Historical viewpoints:</strong> Choose one of the original named views. Select <b>UFO</b> or click <b>Follow UFO tour</b> to see the saucer. Touch the saucer to begin one 180-second flight. From High_Altitude you ride with the UFO; from other views your camera stays in place; it stops short of the observatory for a summit overview. Audio may require a user click to enable browser playback. <strong>Navigate:</strong> Right-click inside the 3D world to select <b>Examine</b>, <b>Fly</b>, or <b>Walk</b>. Examine: drag to rotate; mouse wheel/trackpad scroll to zoom. Click a camera above and choose Go to view. Click the scene first for Home, End, Page Up and Page Down viewpoint shortcuts. <a href="https://create3000.github.io/x_ite/tutorials/how-to-navigate-in-a-scene/" target="_blank" rel="noopener">Official navigation guide</a>.</section>
+<section><strong>Texture:</strong> The source X3D requests <code>big_286743bd39_opaque.png</code>. The opaque image copy is included beside this HTML and model. Texture loading is checked below. <span id="texture">Checking texture…</span></section>
+<footer><details><summary>Diagnostics</summary><pre id="log"></pre></details><p class="muted">Reload this page to reset the UFO to its starting point. Use the sound control if the hum is muted. X_ITE requires an internet connection.</p></footer>
+<script>
+(()=>{const canvas=document.getElementById('scene'),status=document.getElementById('status'), log=document.getElementById('log');let loaded=false;const report=s=>{log.textContent+=new Date().toISOString()+' '+s+'\n'};const say=s=>{status.textContent=s;report(s)};
+function jump(def){try{document.getElementById('view').value=def;const b=canvas.browser;if(!b?.currentScene)throw Error('X_ITE scene not ready');if(typeof b.changeViewpoint==='function'){b.changeViewpoint(def)}else{b.currentScene.getNamedNode(def).set_bind=true}say('Selected camera: '+def);canvas.focus()}catch(e){say('Viewpoint error: '+e.message)}}
+document.getElementById('photo').onclick=()=>jump('OBSERVATORY_PHOTO_TEST');document.getElementById('original').onclick=()=>jump('Observatory');document.getElementById('photoreset').onclick=()=>{jump('Observatory');jump('OBSERVATORY_PHOTO_TEST')};
+document.getElementById('go').onclick=()=>jump(document.getElementById('view').value);document.getElementById('reset').onclick=()=>{document.getElementById('view').value='MAUI_OVERVIEW';jump('MAUI_OVERVIEW')};document.getElementById('view').onchange=e=>jump(e.target.value);
+document.getElementById('tour').onclick=()=>jump('Grand_Tour_28');
+document.getElementById('menu').onclick=()=>{say('Right-click inside the 3D scene for X_ITE navigation menu.');canvas.focus()};
+
+function clearArrival(){
+  try{const s=canvas.browser.currentScene;s.getNamedNode('OBSERVATORY_ARRIVAL_SWITCH').whichChoice=-1;s.getNamedNode('OBSERVATORY_NORMAL_WORLD').whichChoice=0;}catch(e){report('Arrival reset: '+e.message)}
+}
+function fitArrival(){
+ const box=canvas.getBoundingClientRect();if(!box.width||!box.height)return;
+ const aspect=box.width/box.height,half=Math.tan(.6);
+ const horizontal=aspect>=1?half*aspect:half,vertical=aspect>=1?half:half/aspect;
+ const k=Math.max(horizontal/.76,vertical/.4275)*1.025;
+ canvas.browser.currentScene.getNamedNode('OBSERVATORY_ARRIVAL_FRAMING').scale=new X3D.SFVec3f(120*k,120*k,120);
+}
+function showArrival(){
+ try{fitArrival();const s=canvas.browser.currentScene;s.getNamedNode('OBSERVATORY_NORMAL_WORLD').whichChoice=-1;s.getNamedNode('OBSERVATORY_ARRIVAL_SWITCH').whichChoice=0;report('Riding arrival: UFO in foreground; observatory photo behind.');return true;}
+ catch(e){clearArrival();say('Observatory arrival error: '+e.message);return false;}
+}
+function monitorFlight(){
+  try{
+    const timer=canvas.browser.currentScene.getNamedNode('Time_9');
+    const duration=Number(timer.cycleInterval);
+    const flight=document.getElementById('flight');
+    const touch=canvas.browser.currentScene.getNamedNode('DefaultTouchSensor_16');
+    touch.addFieldCallback('maui-touch-ride','isActive',active=>{
+      if(!active || timer.isActive)return;
+      try{
+        // Start on press: the animated saucer can move away before release.
+        const follow=canvas.browser.currentScene.getNamedNode('High_Altitude').isBound;
+        timer.startTime=Date.now()/1000;
+        if(follow)jump('Grand_Tour_28');
+        report(follow?'Saucer touch: flight started and riding camera selected.':'Saucer touch: flight started; current camera retained.');
+      }catch(e){say('UFO ride error: '+e.message)}
+    });
+    let flown=false;
+    const show=(state,text)=>{flight.dataset.state=state;flight.textContent=text};
+    show('idle','UFO waiting — touch the saucer to start its flight.');
+    timer.addFieldCallback('maui-flight-state','isActive',active=>{
+      if(active){clearArrival();flown=true;show('flying','UFO flying — 180-second tour.');}
+      else if(flown){
+ const riding=canvas.browser.currentScene.getNamedNode('Grand_Tour_28').isBound;
+ if(riding&&showArrival())show('finished','Tour finished — UFO overlooking the photographic observatory.');
+ else show('finished','UFO stopped short of the observatory — summit overview.');
+} 
+    });
+    timer.addFieldCallback('maui-flight-progress','fraction_changed',fraction=>{
+      if(timer.isActive)show('flying','UFO flying — '+Math.max(0,Math.ceil(duration*(1-Number(fraction))))+' seconds remaining.');
+    });
+    return true;
+  }catch(e){return false;}
+}
+
+function sceneReady(){if(!loaded&&monitorFlight()){
+loaded=true;
+const photo=canvas.browser.currentScene.getNamedNode('OBSERVATORY_PHOTO_TEST');
+const relief=canvas.browser.currentScene.getNamedNode('OBSERVATORY_PHOTO_SWITCH');
+const fitPhoto=()=>{const box=canvas.getBoundingClientRect();if(box.width&&box.height){const scale=Math.max(box.width/1.52,box.height/.855);photo.fieldOfView=2*Math.atan(Math.min(box.width,box.height)/(2*scale));}};
+fitPhoto();new ResizeObserver(fitPhoto).observe(canvas);
+photo.addFieldCallback('observatory-photo-visibility','isBound',bound=>{relief.whichChoice=bound?0:-1});
+const ride=canvas.browser.currentScene.getNamedNode('Grand_Tour_28');
+ride.addFieldCallback('arrival-camera-state','isBound',bound=>{if(!bound)clearArrival();else{const timer=canvas.browser.currentScene.getNamedNode('Time_9');if(!timer.isActive&&document.getElementById('flight').dataset.state==='finished')showArrival();}});
+new ResizeObserver(()=>{try{fitArrival()}catch(e){report(e.message)}}).observe(canvas);
+jump('High_Altitude');
+}}
+window.addEventListener('load',()=>{try{canvas.browser.addBrowserCallback('maui-ready',X3D.X3DConstants.INITIALIZED_EVENT,sceneReady);sceneReady()}catch(e){say('Viewer initialization error: '+e.message)}});
+canvas.addEventListener('error',e=>say('3D error: '+(e.message||e.type)));window.addEventListener('error',e=>report('JavaScript: '+e.message));window.addEventListener('unhandledrejection',e=>report('Promise: '+String(e.reason)));
+if(location.protocol==='file:')say('Please use HTTP localhost, not file://');
+fetch('big_286743bd39_opaque.png',{method:'HEAD'}).then(r=>{document.getElementById('texture').textContent=r.ok?'Texture file found (image rendering not independently verified).':'Texture missing (HTTP '+r.status+'). Add the original PNG to this folder.';report('Texture HTTP '+r.status)}).catch(e=>{document.getElementById('texture').textContent='Texture not reachable';report(String(e))});
+fetch('maui.x3d',{method:'HEAD'}).then(r=>report('X3D HTTP '+r.status+'; size '+r.headers.get('content-length'))).catch(e=>report('Model request: '+e.message));
+})();</script></body></html>
